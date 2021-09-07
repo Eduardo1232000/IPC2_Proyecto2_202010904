@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<Maquina>
+	<CantidadLineasProduccion>
+	</CantidadLineasProduccion>
+	<ListadoLineasProduccion>
+		<LineaProduccion>
+			<Numero>
+				<1>
+			</Numero>
+			<CantidadComponentes>
+				<5>
+			<CantidadComponentes>
+			<TiempoEnsamblaje>
+				<5>
+			</TiempoEnsamblaje>
+		</LineaProduccion>
+	</ListadoLineasProduccion>
+	<ListadoProductos>
+		<Producto>
+			<nombre>
+				<texto>
+			</nombre>
+			<elaboracion>
+				<L2pC2p>
+			</elaboracion>
+		</Producto>
+	<ListadoProductos>
+</Maquina>
