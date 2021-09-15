@@ -6,9 +6,10 @@ from analizar_archivo import *
 from listas import *
 import xml.etree.ElementTree as ET
 import os
-from PIL import Image,ImageTk
 from threading import *
 import time
+
+
 
 
 class interfaz:
@@ -18,8 +19,7 @@ class interfaz:
         self.ventana.title("Simulacion")    #Titulo programa
         self.ventana.geometry("750x500")  #tamaño de pantalla
         self.ventana.configure(bg='skyblue')#color de fondo ventana
-        self.permitir = 0
-
+        self.permitir=0
         #DATOS DEL DOCUMENTO ANALIZADO
         self.contador=0
         self.numero_lineas_produccion = 0 #NUMERO DE LINEAS DE PRODUCCION
@@ -27,35 +27,42 @@ class interfaz:
         self.listado_producto = Lista()       #ESTRUCTURA NOMBRE, ELABORACION
 
 
+
         #BOTONES
         self.botonSaludo = Button(ventana, text="Cargar Archivo",command=self.carga)
         self.botonSaludo.place(x=10, y=10,width=100,height=30)
 
-        self.botonSaludo = Button(ventana, text="Cargar Simulacion",command=self.carga_simulacion)
-        self.botonSaludo.place(x=110, y=10,width=100,height=30)
+        self.botonSaludo = Button(ventana, text="Cargar Archivo",command=self.carga)
+        self.botonSaludo.place(x=10, y=10,width=100,height=30)
 
-        self.botonventana = Button(ventana, text="Analizar", command=self.hilos)
+        self.botonventana = Button(ventana, text="Analizar", command=self.analizar)
         self.botonventana.place(x=210, y=10,width=100,height=30)
 
         self.botonreportes = Button(ventana, text="Reportes", command=self.reportes)
         self.botonreportes.place(x=310, y=10,width=100,height=30)
 
+        self.botonreportes = Button(ventana, text="hilos", command = self.threading)
+        self.botonreportes.place(x=310, y=210,width=100,height=30)
+
         self.botonCerrar = Button(ventana, text="Cerrar", command=ventana.quit)
         self.botonCerrar.place(x=610, y=10,width=100,height=30)
 
-        self.img = ImageTk.PhotoImage(Image.open('reloj.png'))
-        self.imagen = Label(ventana, image= self.img)
-        self.imagen.place(x=550,y=350)
 
     #FUNCION DEL BOTON CARGAR
     def carga(self):
-        self.archivo= abrir()
-        #print(self.archivo)
+        print("hola")
+        
+
+    #FUNCION DEL BOTON ANALIZAR
+    def analizar(self):
+        self.archivo = "D:/Escritorio/Proyectos Python/IPC2/proyecto 2/Archivos de prueba - Proyecto 2-20210914T193047Z-001/Archivos de prueba - Proyecto 2/maquina.xml"
+        #print("analiza")
+        self.doc_analizado=Cola()
+
         self.raiz = ET.parse(self.archivo)
         self.data = self.raiz.getroot()
         #print(self.data)
         while self.contador < len(self.data):
-        
 
         #OBTIENE EL NUMERO DE LINEAS DE PRODUCCION------------------------------------------------------------------------------------
             if self.data[self.contador].tag=="CantidadLineasProduccion":
@@ -99,43 +106,20 @@ class interfaz:
         
                 self.contador+=1
                 continue
-        contadorx=0
-        contadory=0
-        contadorcolumna=1
-
-        self.numero_lineas_produccion=5
-        ancho = 250/int(self.numero_lineas_produccion)
-
-        #CREA PRIMERA FILA
-        for i in range(0, int(self.numero_lineas_produccion)+1):
-            cell = Entry(ventana_principal, width=10)
-            cell.grid(padx=5, pady=5, row=1, column=1)
-            if contadorx==0:
-                cell.insert(0, "Tiempo")
-            else:
-                cell.insert(0, "Linea "+str(contadorcolumna))
-                contadorcolumna+=1
-            cell.place(x= 400+contadorx, y= 60+contadory, width=ancho, height=40)
-            contadorx+=ancho
-        #CREA CONTENIDO DE LA TABLA
-        for i in range(0, 5):
-            contadorx=0
-            for j in range(0, int(self.numero_lineas_produccion)+1):
-                cell = Entry(ventana_principal, width=10)
-                cell.grid(padx=5, pady=5, row=j, column=i)
-                if contadorx==0:
-                    cell.insert(0, "")
-                else:
-                    cell.insert(0, "")
-                cell.place(x= 400+contadorx, y= 100+contadory, width=ancho, height=40)
-                contadorx+=ancho
-            contadorx=0
-            contadory+=40
         #
+            
             continue
-        self.permitir=1
-        MessageBox.showinfo("Aviso!", "Archivo cargado con exito!") # título, mensaje
-        #MOSTRAR LISTAS CREADAS
+
+                        
+            
+
+
+
+
+    #FUNCION DEL BOTON REPORTES
+
+    def reportes(self):
+        #print("reportes")
         print()
         print("------------------------Informacion de:Lineas de produccion-------------------------")
         for i in self.lineas_de_produccion.recorrer():
@@ -144,60 +128,18 @@ class interfaz:
         print("------------------------Informacion de: Listado Productos-------------------------")
         for i in self.listado_producto.recorrer():
             print(i)
+        
     
-    #FUNCION PARA CARGAR SIMULACION
-    def carga_simulacion(self):
-        if self.permitir ==0:
-            MessageBox.showinfo("Error!", "Debe seleccionar primero un archivo de maquina!") # título, mensaje
-        else:
-            self.archivo= abrir()
-            print(self.archivo)
-            MessageBox.showinfo("Aviso!", "Archivo cargado con exito!") # título, mensaje
-    
-    #FUNCION LLAMADO DE HILOS
-    def hilos(self):
-        if self.permitir ==0:
-            MessageBox.showinfo("Error!", "Debe seleccionar primero un archivo de maquina!") # título, mensaje
-        else:
-            print("analiza")
-            t1=Thread(target=self.work) 
-            t1.start() 
-
-    #LO QUE HACE MIENTRAS EL HILO ESTA ACTIVO
+    def threading(self): 
+        t1=Thread(target=self.work) 
+        t1.start() 
+  
     def work(self): 
-        #HILO
         print("sleep time start") 
-        for o in range(10): 
-            print(o) 
-
-            contadorx=0
-            contadory=0
-            self.numero_lineas_produccion=5
-            ancho = 250/int(self.numero_lineas_produccion)
-            #VA AGREGANDO TABLAS A MODO QUE SE VA CAMBIANDO CUANDO AVANZA EL HILO
-            for i in range(0, 5):
-                contadorx=0
-                for j in range(0, int(self.numero_lineas_produccion)+1):
-                    cell = Entry(ventana_principal, width=10)
-                    cell.grid(padx=5, pady=5, row=j, column=i)
-                    if contadorx==0:
-                        cell.insert(0, "Tiempo")
-                    else:
-                        cell.insert(0, o)
-                    cell.place(x= 400+contadorx, y= 100+contadory, width=ancho, height=40)
-                    contadorx+=ancho
-                contadorx=0
-                contadory+=40
-
+        for i in range(10): 
+            print(i) 
             time.sleep(1) 
         print("sleep time stop") 
-     
-    #FUNCION DEL BOTON REPORTES
-    def reportes(self):
-        if self.permitir ==0:
-            MessageBox.showinfo("Error!", "Debe seleccionar primero un archivo de maquina!") # título, mensaje
-        else:
-            print("reportes")
 
 ventana_principal= Tk()
 programa = interfaz(ventana_principal)

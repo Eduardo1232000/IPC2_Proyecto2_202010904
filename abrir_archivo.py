@@ -8,4 +8,5 @@ def abrir():
     print("El archivo se cargo correctamente")                                   #RUTA (opcional) imprime ruta
     datos= archivo.read() 
     archivo.close
-    return datos
+    #return datos       RETORNA EL ARCHIVO COMPLETO
+    return ruta # RETORNA LA RUTA DEL ARCHIVO
