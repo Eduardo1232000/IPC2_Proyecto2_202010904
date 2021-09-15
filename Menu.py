@@ -2,7 +2,6 @@ from tkinter import *
 from tkinter import messagebox as MessageBox
 from enum import auto
 from abrir_archivo import*
-from analizar_archivo import *
 from listas import *
 import xml.etree.ElementTree as ET
 import os
@@ -25,6 +24,8 @@ class interfaz:
         self.numero_lineas_produccion = 0 #NUMERO DE LINEAS DE PRODUCCION
         self.lineas_de_produccion = Lista()   #ESTRUCTURA: NUMERO, CANTIDAD COMPONENTES, TIEMPO ENSAMBLAJE
         self.listado_producto = Lista()       #ESTRUCTURA NOMBRE, ELABORACION
+        self.listaconstruccion = Cola()
+        self.nombresimulacion=""
 
 
         #BOTONES
@@ -150,8 +151,28 @@ class interfaz:
         if self.permitir ==0:
             MessageBox.showinfo("Error!", "Debe seleccionar primero un archivo de maquina!") # título, mensaje
         else:
+            self.contador=0
             self.archivo= abrir()
-            print(self.archivo)
+            #print(self.archivo)
+            self.raiz = ET.parse(self.archivo)
+            self.data = self.raiz.getroot()
+            #print(len(self.data))
+            while self.contador < len(self.data):
+                #print(self.data[self.contador].tag)
+                if self.data[self.contador].tag=="Nombre":
+                    self.nombresimulacion = self.data[self.contador].text
+                    #print(self.nombresimulacion) SI COLOCA EL NOMBRE DEL SIMULADOR
+                elif self.data[self.contador].tag=="ListadoProductos":
+                    self.listado = self.data[self.contador]
+                    for i in self.listado:
+                        self.listaconstruccion.insertar(i.text)
+                    for i in self.listaconstruccion.recorrer():
+                        print(i)
+                    self.contador+=1
+                    continue
+                self.contador+=1
+                continue
+
             MessageBox.showinfo("Aviso!", "Archivo cargado con exito!") # título, mensaje
     
     #FUNCION LLAMADO DE HILOS
