@@ -8,6 +8,10 @@ import os
 from PIL import Image,ImageTk
 from threading import *
 import time
+import re
+
+from analizador import *
+analizando = expresion()
 
 
 class interfaz:
@@ -26,6 +30,32 @@ class interfaz:
         self.listado_producto = Lista()       #ESTRUCTURA NOMBRE, ELABORACION
         self.listaconstruccion = Cola()
         self.nombresimulacion=""
+
+        #LISTAS DE SEPARACION CON SPLIT
+        self.listado_producto_nombres = Lista()
+        self.listado_producto_pasos = Lista()
+
+
+        #NECESARIO PARA ANALISIS
+        self.pasos= Cola()
+        self.componentepasos = Cola()
+        self.pasosporsegundo= Lista()
+
+        self.contadorcomas =0
+        self.contadorcomponentepasos =0
+        self.contadorinstruccionpasos = 0
+        self.estado=0                       #En la expresion es para saber cuando agregar la instruccion a la cola
+        self.instruccion_actual=""          #es para el analisis 
+        self.instruccion=""                 # forma la instruccion para despues guardarla en la cola
+        self.linea_actual=""                #es para el analisis y saber la linea actual
+        self.componente_actual=""           #es para guiarse y realizar acciones
+        self.caracter=""                    
+        self.contador=0                     
+        self.segundo=1                      #para saber en que segundo va y guardarlo en la cola
+        self.producto_proceso =""           #Para saber en el analisis que producto esta construyendo
+        self.numeroanalisis = 0             #Para la expresion, y asi saber si la instruccion ya tiene sus 2 numeros
+        
+
 
 
         #BOTONES
@@ -137,14 +167,14 @@ class interfaz:
         self.permitir=1
         MessageBox.showinfo("Aviso!", "Archivo cargado con exito!") # título, mensaje
         #MOSTRAR LISTAS CREADAS
-        print()
-        print("------------------------Informacion de:Lineas de produccion-------------------------")
-        for i in self.lineas_de_produccion.recorrer():
-            print(i)
-        print()
-        print("------------------------Informacion de: Listado Productos-------------------------")
-        for i in self.listado_producto.recorrer():
-            print(i)
+    #    print()
+    #    print("------------------------Informacion de:Lineas de produccion-------------------------")
+    #    for i in self.lineas_de_produccion.recorrer():
+    #        print(i)
+    #    print()
+    #    print("------------------------Informacion de: Listado Productos-------------------------")
+    #    for i in self.listado_producto.recorrer():
+    #        print(i)
     
     #FUNCION PARA CARGAR SIMULACION
     def carga_simulacion(self):
@@ -175,14 +205,151 @@ class interfaz:
 
             MessageBox.showinfo("Aviso!", "Archivo cargado con exito!") # título, mensaje
     
-    #FUNCION LLAMADO DE HILOS
+    #FUNCION LLAMADO DE HILOS (ANALIZAR)
     def hilos(self):
         if self.permitir ==0:
             MessageBox.showinfo("Error!", "Debe seleccionar primero un archivo de maquina!") # título, mensaje
         else:
             print("analiza")
-            t1=Thread(target=self.work) 
-            t1.start() 
+            #ANALIZADOR DE LISTA
+            for i in self.listado_producto.recorrer():
+                print(len(i))
+                contador=0
+                print(i)
+                #print(i[contador])
+                while contador < len(i):
+                    #print(i[contador])
+                    if int(self.estado) == 0:
+                        if re.search(r"[a-zA-Z]", i[contador]):
+                            self.instruccion+=i[contador]
+                            contador+=1
+                            self.estado = 1
+                            continue
+                        elif re.search(r"[0-9]", i[contador]):
+                            self.estado= 2
+                            self.instruccion = ""
+                            self.instruccion += i[contador]
+                            self.numeroanalisis+=1
+                            contador+=1
+                            continue
+                        elif re.search(r" ", i[contador]):
+                            contador+=1
+                            continue
+                        else:
+                            contador+=1
+                            continue
+
+                    elif self.estado == 1:
+                        if re.search(r"[a-zA-Z]", i[contador]):
+                            self.instruccion+=i[contador]
+                            contador+=1
+                            self.estado = 1
+                            continue
+
+                        elif re.search(r',', i[contador]):
+                            if self.contadorcomas==0:
+                                self.producto_proceso= self.instruccion
+
+                                self.instruccion=""
+                                contador+=1
+                                self.estado = 0
+                            else:
+                                self.contadorcomas=0
+                                contador+=1
+                                continue
+                        else:
+                            self.estado = 0 
+
+                    elif self.estado == 2:
+                        if self.numeroanalisis ==1:
+                            if re.search(r"[0-9]", i[contador]):
+                                self.instruccion=""
+                                self.instruccion += i[contador]
+                                contador+=1
+                                continue
+                            else:
+                                self.estado=0
+                                self.pasos.insertar(self.instruccion)
+                                #self.componentepasos.insertar(self.producto_proceso)
+                                self.instruccion=""
+                                continue
+
+                        if self.numeroanalisis ==2:
+                            if re.search(r"[0-9]", i[contador]):
+                                self.instruccion=""
+                                self.instruccion += i[contador]
+                                contador+=1
+                                continue
+                            else:
+                                self.numeroanalisis=0
+                                self.estado=0
+                                self.pasos.insertar(self.instruccion)
+                                self.componentepasos.insertar(self.producto_proceso)
+                                self.instruccion=""
+                                continue
+                        else:
+                            contador+=1
+                #self.pasos.insertar(",")
+                #self.componentepasos.insertar(",")
+                print("TERMINE")
+#ANALISIS DE PASOS
+            queseanaliza="linea"    #ANALISIS PARA IMPRIMIR CORRECTAMENTE
+            contadorcomponente=1    #ANALISIS PARA IMPRIMIR CORRECTAMENTE   
+            contadorlinea=1         #ANALISIS PARA IMPRIMIR CORRECTAMENTE 
+            contadorgeneral=1       #ANALISIS PARA IMPRIMIR CORRECTAMENTE 
+            componenteactual=0
+            lineaactual=0
+            contadorfor=1
+            componenteconstruccion =""
+            componenteparavalidacion =""
+            validacion = 0
+            for i in self.listaconstruccion.recorrer():     #RECORRE LA LISTA DE SIMULACION
+                componenteconstruccion = i                  #INDICA QUE EL COMPONENTE QUE SE VA A CONSTRUIR ES EL DE I
+                contadorgeneral=1
+                
+                print(i)
+                print("------------------")
+                for j in self.componentepasos.recorrer(): 
+                    if j == i:
+                        print(j)
+
+                        contadorcomponente = 1
+                        contadorlinea = 1
+                        for k in self.pasos.recorrer():
+                            if queseanaliza =="linea":
+                                if contadorcomponente==contadorgeneral:
+                                    print(k)
+                                    queseanaliza="componente"
+                                    contadorlinea+=1
+                                    continue
+                                else:
+                                    queseanaliza = "componente"
+                                    contadorlinea+=1
+                                    continue
+                            
+                            if queseanaliza =="componente":
+                                if contadorcomponente==contadorgeneral:
+                                    queseanaliza="linea"
+                                    print(k)
+                                    contadorcomponente+=1
+                                    continue
+                                else:
+                                    queseanaliza = "linea"
+                                    contadorcomponente+=1
+                                    continue
+                        #print (j)
+                        contadorgeneral+=1
+                    else: 
+                        contadorgeneral+=1
+                        continue
+                print("----------")    
+                print()
+
+#FIN ANALISIS PASOS
+
+
+            #t1=Thread(target=self.work) 
+            #t1.start() 
 
     #LO QUE HACE MIENTRAS EL HILO ESTA ACTIVO
     def work(self): 
@@ -219,6 +386,15 @@ class interfaz:
             MessageBox.showinfo("Error!", "Debe seleccionar primero un archivo de maquina!") # título, mensaje
         else:
             print("reportes")
+
+    
+    
+                            
+
+                    
+                
+        
+
 
 ventana_principal= Tk()
 programa = interfaz(ventana_principal)
