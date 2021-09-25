@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import messagebox as MessageBox
 from enum import auto
+from typing import List
 from abrir_archivo import*
 from listas import *
 import xml.etree.ElementTree as ET
@@ -9,6 +10,8 @@ from PIL import Image,ImageTk
 from threading import *
 import time
 import re
+from reporte import*
+reportes= reporte()
 
 from analizador import *
 analizando = expresion()
@@ -40,6 +43,15 @@ class interfaz:
         self.pasos= Cola()
         self.componentepasos = Cola()
         self.pasosporsegundo= Lista()
+        self.pasosintermedios= Lista()
+        self.lineasintermedias= Lista()
+        self.pasosfinales = Cola()
+        self.lineasfinales = Cola()
+        self.separaciondecomponentes= Cola()
+        self.l_final= Lista()
+        self.p_final=Lista()
+        self.reportefinal = Cola()
+
 
         self.contadorcomas =0
         self.contadorcomponentepasos =0
@@ -54,6 +66,11 @@ class interfaz:
         self.segundo=1                      #para saber en que segundo va y guardarlo en la cola
         self.producto_proceso =""           #Para saber en el analisis que producto esta construyendo
         self.numeroanalisis = 0             #Para la expresion, y asi saber si la instruccion ya tiene sus 2 numeros
+        self.lenlista=0
+        self.ancho =0
+        self.comp=0
+
+        
         
 
 
@@ -134,20 +151,25 @@ class interfaz:
         contadory=0
         contadorcolumna=1
 
-        self.numero_lineas_produccion=5
-        ancho = 250/int(self.numero_lineas_produccion)
+        #self.numero_lineas_produccion=5
+        contador=0
+        while int(contador) < int(self.numero_lineas_produccion):
+            self.lineasintermedias.insertar(int(contador)+1)
+            self.pasosintermedios.insertar("0")
+            contador+=1
+        self.ancho = 250/int(self.numero_lineas_produccion)
 
         #CREA PRIMERA FILA
         for i in range(0, int(self.numero_lineas_produccion)+1):
             cell = Entry(ventana_principal, width=10)
             cell.grid(padx=5, pady=5, row=1, column=1)
             if contadorx==0:
-                cell.insert(0, "Tiempo")
+                cell.insert(0, "Segundo")
             else:
                 cell.insert(0, "Linea "+str(contadorcolumna))
                 contadorcolumna+=1
-            cell.place(x= 400+contadorx, y= 60+contadory, width=ancho, height=40)
-            contadorx+=ancho
+            cell.place(x= 400+contadorx, y= 60+contadory, width=self.ancho, height=40)
+            contadorx+=self.ancho
         #CREA CONTENIDO DE LA TABLA
         for i in range(0, 5):
             contadorx=0
@@ -158,12 +180,15 @@ class interfaz:
                     cell.insert(0, "")
                 else:
                     cell.insert(0, "")
-                cell.place(x= 400+contadorx, y= 100+contadory, width=ancho, height=40)
-                contadorx+=ancho
+                cell.place(x= 400+contadorx, y= 100+contadory, width=self.ancho, height=40)
+                contadorx+=self.ancho
             contadorx=0
             contadory+=40
         #
+        
             continue
+        self.componentelabel = Label(ventana_principal, text="")
+        self.componentelabel.place(x=50, y=100,width=300, height=50)
         self.permitir=1
         MessageBox.showinfo("Aviso!", "Archivo cargado con exito!") # título, mensaje
         #MOSTRAR LISTAS CREADAS
@@ -285,6 +310,7 @@ class interfaz:
                                 self.estado=0
                                 self.pasos.insertar(self.instruccion)
                                 self.componentepasos.insertar(self.producto_proceso)
+
                                 self.instruccion=""
                                 continue
                         else:
@@ -292,33 +318,62 @@ class interfaz:
                 #self.pasos.insertar(",")
                 #self.componentepasos.insertar(",")
                 print("TERMINE")
-#ANALISIS DE PASOS
+#ANALISIS DE PASOS-----------------------------------------------------------------------------------------------------------------------
             queseanaliza="linea"    #ANALISIS PARA IMPRIMIR CORRECTAMENTE
             contadorcomponente=1    #ANALISIS PARA IMPRIMIR CORRECTAMENTE   
             contadorlinea=1         #ANALISIS PARA IMPRIMIR CORRECTAMENTE 
             contadorgeneral=1       #ANALISIS PARA IMPRIMIR CORRECTAMENTE 
             componenteactual=0
             lineaactual=0
-            contadorfor=1
-            componenteconstruccion =""
-            componenteparavalidacion =""
-            validacion = 0
+            lineainstruccionactual =0       #PARA SACAR LAS INSTRUCCIONES FINALES
+            componenteinstruccionactual=0   #PARA SACAR LAS INSTRUCCIONES FINALES
+            contadordelinea = 0 #para analizar cada uno
+            posicionactuallinea=0
+            posicionfinallinea=0
             for i in self.listaconstruccion.recorrer():     #RECORRE LA LISTA DE SIMULACION
                 componenteconstruccion = i                  #INDICA QUE EL COMPONENTE QUE SE VA A CONSTRUIR ES EL DE I
                 contadorgeneral=1
                 
                 print(i)
-                print("------------------")
+                #print("------------------")
                 for j in self.componentepasos.recorrer(): 
                     if j == i:
-                        print(j)
+                        #print(j)
 
                         contadorcomponente = 1
                         contadorlinea = 1
                         for k in self.pasos.recorrer():
                             if queseanaliza =="linea":
                                 if contadorcomponente==contadorgeneral:
-                                    print(k)
+                                    #SOLO IMPRIME LINEAS DE CONSTRUCCION
+                                    lineaactual=k
+                                    lineainstruccionactual=k
+                                    #print(k)
+
+                                    #va a encontrar la posicion final de la linea para usarla despues
+                                    contadorl=1
+                                    contadorp=1
+
+                                    for q in self.lineasintermedias.recorrer():
+                                        if int(q) ==int(lineaactual):
+                                            for w in self.pasosintermedios.recorrer():
+                                                if contadorl == contadorp: 
+                                                    posicionfinallinea=w
+                                                    #print(q, w)
+                                                    #print()
+                                                    contadorp+=1
+                                                    
+                                                else:
+                                                    contadorp+=1
+                                            contadorp=1
+                                            contadorl+=1
+                                        else:
+                                            contadorl+=1
+                                    posicionactuallinea = int(posicionfinallinea)
+                                                
+                                            
+                                    #aqui termina el analisis de la ultima pos
+
                                     queseanaliza="componente"
                                     contadorlinea+=1
                                     continue
@@ -326,59 +381,278 @@ class interfaz:
                                     queseanaliza = "componente"
                                     contadorlinea+=1
                                     continue
-                            
+                            #ESTA INCOMPLETO INICIA SIEMPRE DESDE 0 ARREGLAR ESO
                             if queseanaliza =="componente":
                                 if contadorcomponente==contadorgeneral:
                                     queseanaliza="linea"
-                                    print(k)
+                                    componenteinstruccionactual=k
+                                    #SOLO IMPRIME COMPONENTES
+                                    #print("L"+str(lineaactual)+"C"+str(posicionactuallinea))
+                                    while int(posicionactuallinea) < int(componenteinstruccionactual):
+                                        posicionactuallinea +=1
+                                        #print("L"+str(lineaactual)+"C"+str(posicionactuallinea))
+                                        self.lineasintermedias.insertar(lineaactual)
+                                        self.pasosintermedios.insertar(posicionactuallinea)
+                                        continue
+
+                                    while int(posicionactuallinea) > int(componenteinstruccionactual):
+                                        posicionactuallinea -=1
+                                        #print("L"+str(lineaactual)+"C"+str(posicionactuallinea))
+                                        self.lineasintermedias.insertar(lineaactual)
+                                        self.pasosintermedios.insertar(posicionactuallinea)
+                                        continue
+                                    #print(k)
+                                    
                                     contadorcomponente+=1
                                     continue
                                 else:
                                     queseanaliza = "linea"
                                     contadorcomponente+=1
                                     continue
+                        
                         #print (j)
+                        algo= int(posicionactuallinea)
+                        self.separaciondecomponentes.insertar(lineaactual)
+                        self.separaciondecomponentes.insertar(algo)
+                        
+                        self.pasosintermedios.insertar(int(algo))
+                        self.lineasintermedias.insertar(lineaactual)
                         contadorgeneral+=1
                     else: 
                         contadorgeneral+=1
                         continue
-                print("----------")    
+                
+                
+                #print("----------")
+                posicionactuallinea=0
+                contador=0
+                while int(contador) < int(self.numero_lineas_produccion):
+                    self.lineasintermedias.insertar(int(contador)+1)
+                    self.pasosintermedios.insertar("0")
+                    contador+=1    
                 print()
 
-#FIN ANALISIS PASOS
+
+#FIN ANALISIS PASOS------------------------------------------------------------------------------------------------------------------------
+        
+
+              
 
 
-            #t1=Thread(target=self.work) 
-            #t1.start() 
+            #HILOS
+            t1=Thread(target=self.work) 
+            t1.start() 
 
     #LO QUE HACE MIENTRAS EL HILO ESTA ACTIVO
     def work(self): 
         #HILO
-        print("sleep time start") 
-        for o in range(10): 
-            print(o) 
+        #IMPRIME LISTA CON LA CONSTRUCCION
 
-            contadorx=0
-            contadory=0
-            self.numero_lineas_produccion=5
-            ancho = 250/int(self.numero_lineas_produccion)
-            #VA AGREGANDO TABLAS A MODO QUE SE VA CAMBIANDO CUANDO AVANZA EL HILO
-            for i in range(0, 5):
-                contadorx=0
-                for j in range(0, int(self.numero_lineas_produccion)+1):
-                    cell = Entry(ventana_principal, width=10)
-                    cell.grid(padx=5, pady=5, row=j, column=i)
-                    if contadorx==0:
-                        cell.insert(0, "Tiempo")
-                    else:
-                        cell.insert(0, o)
-                    cell.place(x= 400+contadorx, y= 100+contadory, width=ancho, height=40)
-                    contadorx+=ancho
-                contadorx=0
-                contadory+=40
 
-            time.sleep(1) 
-        print("sleep time stop") 
+        columna=1
+        fila =0
+
+        contenido1 = "1"
+        contenido2 = "2"
+        contenido3 = "3"
+        contenido4 = "4"
+        contenido5 = "5"
+
+        columna1 = 0
+        columna2 = 0
+        columna3 = 0
+        columna4 = 0
+        colum = 0
+
+
+
+        segundo1=0
+        segundo2=0
+        segundo3=0
+        segundo4=0
+        segundo5=0
+
+        contadorx=0
+        contadory=0
+        contadorcolumna=1
+                
+
+        repetido=0
+        contadorl=1
+        contadorp=1
+        componentefinal=-1
+        lineafinal=-1
+
+        enposicion=0
+        construir=0
+        mover=0
+        texto=""
+        contadortexto=0
+
+        for i in self.lineasintermedias.recorrer():
+            for j in self.pasosintermedios.recorrer():
+                if contadorl==contadorp:
+
+                    if int(j)==0:
+                        if repetido == 0:
+                            contadortexto+=1
+                            self.comp=1
+                            #print(contadortexto)
+                            for o in self.listaconstruccion.recorrer():
+                                #print(self.comp)
+                                #print(contadortexto)
+                                if self.comp==contadortexto:
+                                    print(contadortexto, self.comp)
+                                    texto=str(o)
+                                    print(o)
+                                    break
+                                else:
+                                    self.comp+=1
+                                    texto="nada"
+                            
+                            #Cambiar componente
+                            self.componentelabel = Label(ventana_principal, text=texto)
+                            self.componentelabel.place(x=50, y=100,width=300, height=50)
+                            self.componentelabel.config(font=("Verdana",24))
+                            # 
+                            self.reportefinal.insertar("inicio")
+                            segundo5=1
+                            repetido = 1
+                            
+                            
+                        else:
+                            repetido=0
+                        enposicion=1
+                        contadorp+=1
+                    if int(j) == int(componentefinal):
+                        if int(i) == int(lineafinal):
+                            construir=1         
+                            contadorp+=1
+                    
+                    if construir==1:
+                        print("L"+str(i)+" Construir C"+str(j))
+                        
+                        construir=0
+                        colum = int(i)
+                        contenido5="L"+str(i)+" Construir C"+str(j)
+                        self.reportefinal.insertar(contenido5)
+                        
+                    elif enposicion==1:
+                        print("L"+str(i)+" en posicion "+str(j))
+                        contenido5="L"+str(i)+" en posicion "+str(j)
+                        colum = int(i)
+                        enposicion=0
+                        self.reportefinal.insertar(contenido5)
+                    
+                    else:    
+                        print("L"+str(i)+" Mover a C"+str(j))
+                        colum=int(i)
+                        contenido5="L"+str(i)+" Mover a C"+str(j)
+                        colum = int(i)
+                        self.reportefinal.insertar(contenido5)
+
+                    
+                    lineafinal=int(i)
+                    componentefinal = int(j) 
+
+
+                    #tabla
+                    #CREA CONTENIDO DE LA TABLA
+                    columna=1
+                    fila =0
+                    contadorx=0
+                    contadory=0
+                    contadorcolumna=1
+                    self.timerlabel = Label(ventana_principal, text=segundo5)
+                    self.timerlabel.place(x=620, y=350)
+                    self.timerlabel.config(bg="skyblue",font=("Verdana",24))
+
+                    for q in range(0, 5):
+                        fila+=1
+                        columna=1
+                        contadorx=0
+                        for w in range(0, int(self.numero_lineas_produccion)+1):
+                            #print(fila, columna)
+                            cell = Entry(ventana_principal, width=10)
+                            cell.grid(padx=5, pady=5, row=w, column=q)
+                            if contadorx==0:
+                                if fila==1:
+                                    cell.insert(0, segundo1)
+                                if fila==2:
+                                    cell.insert(0, segundo2)
+                                    segundo1=segundo2
+                                if fila==3:
+                                    cell.insert(0, segundo3)
+                                    segundo2=segundo3
+                                if fila==4:
+                                    cell.insert(0, segundo4)
+                                    segundo3=segundo4
+                                if fila==5:
+                                    cell.insert(0, segundo5)
+                                    segundo4=segundo5
+                                    segundo5+=1
+                                columna+=1
+                            else:
+                                if fila== 1:
+                                    
+                                    if int(columna1)== int(columna)-1:  
+                                        cell.insert(0, contenido1)
+                                    else:
+                                        cell.insert(0, "")
+
+                                elif fila== 2:
+                                    if int(columna2)== int(columna)-1:   
+                                        cell.insert(0, contenido2)
+                                        contenido1 = contenido2
+                                        columna1=columna2
+                                    else:
+                                        cell.insert(0, "")
+
+                                elif fila== 3:
+                                    if int(columna3)== int(columna)-1:   
+                                        cell.insert(0, contenido3)
+                                        contenido2 = contenido3
+                                        columna2=columna3
+                                    else:
+                                        cell.insert(0, "")
+
+                                elif fila== 4:
+                                    if int(columna4)== int(columna)-1:   
+                                        cell.insert(0, contenido4)
+                                        contenido3 = contenido4
+                                        columna3=columna4
+                                    else:
+                                        cell.insert(0, "")
+
+                                elif fila== 5:
+                                    if int(colum)== int(columna)-1:   
+                                        cell.insert(0, str(contenido5))
+                                        contenido4 = contenido5
+                                        columna4=colum
+                                    else:
+                                        cell.insert(0, "")
+                                columna+=1
+
+                            cell.place(x= 400+contadorx, y= 100+contadory, width=self.ancho, height=40)
+                            contadorx+=self.ancho 
+                        contadorx=0
+                        contadory+=40
+                        continue
+                    #tabla
+                    
+                    time.sleep(1)
+
+
+
+
+
+                contadorp+=1
+            #print("L"+str(i)+"Construir"+str(componentefinal))
+            contadorp=1
+            contadorl+=1
+
+
+             
      
     #FUNCION DEL BOTON REPORTES
     def reportes(self):
@@ -386,6 +660,11 @@ class interfaz:
             MessageBox.showinfo("Error!", "Debe seleccionar primero un archivo de maquina!") # título, mensaje
         else:
             print("reportes")
+            print("---------------Reportes----------------------")
+            for i in self.reportefinal.recorrer():
+                print(i)
+            reporte.reporte_construccion(self,self.reportefinal,self.numero_lineas_produccion,self.listaconstruccion)
+            
 
     
     

@@ -46,6 +46,10 @@ class interfaz:
         self.botonCerrar = Button(ventana, text="Cerrar", command=ventana.quit)
         self.botonCerrar.place(x=610, y=10,width=100,height=30)
 
+        self.componentelabel = Label(ventana_principal, text="")
+        self.componentelabel.place(x=50, y=100,width=300, height=50)
+        self.componentelabel.config(font=("Verdana",24))
+
 
     #FUNCION DEL BOTON CARGAR
     def carga(self):

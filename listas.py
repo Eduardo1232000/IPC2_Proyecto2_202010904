@@ -25,6 +25,22 @@ class Lista:
             valor_actual = valor_actual.siguiente
             yield dato
 
+    def eliminar_dato(self, dato):
+        actual = self.cola
+        anterior = self.cola
+
+        while actual:
+            if actual.dato == dato:
+                if actual == self.cola:
+                    self.cola = actual.siguiente
+                else:
+                    # [2]->[3]->[5] => [2]->[5]
+                    anterior.siguiente = actual.siguiente
+                self.longitud -= 1
+                return
+            anterior = actual
+            actual = actual.siguiente
+
 class Cola:
     def __init__(self):
         self.cabeza = None                          
