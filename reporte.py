@@ -1,8 +1,10 @@
 import webbrowser
 from listas import *
 class reporte:
-    def reporte_construccion(self,listado,no_lineas,componente):
+    def reporte_construccion(self,listado,no_lineas,componente,linea):
+        inicio=0
         for i in componente.recorrer():
+            inicio+=1
             
 
             reporte = open(str(i)+".html",'w')
@@ -17,12 +19,72 @@ class reporte:
             html += '<table border="1" bgcolor= "#FFFFF" style="width:60%; border: 1px ; margin: 5px">\n'
             contador=0
             html += '<tr>'
+
             while int(contador) < int(no_lineas)+1:      #El +1 es por la columna tiempo
                 if contador==0:
                     html+= '<th align="center">Tiempo</th>'
                 else:
                     html+= '<th align="center">Linea de ensamblaje'+str(contador)+'</th>'
                 contador+=1
+            html += "</tr>\n"
+            contadorl=1
+            contadorp=1
+
+            columna=0
+            columnahtml=0
+            segundo=0
+            inicioactual=0
+            print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+            for a in linea.recorrer():
+                if a == "inicio":
+                    inicioactual+=1
+                    contadorl+=1
+                    segundo=1
+                    continue
+                    
+                if inicio==inicioactual:
+                    for b in listado.recorrer():
+                        if int(contadorl) == int(contadorp):
+                            print (segundo,b)
+                            columna=int(a)
+                            columnahtml=0
+                            
+                            while int(columnahtml) < int(no_lineas)+1:      #El +1 es por la columna tiempo
+                                print(columna,columnahtml)
+                                if columnahtml==0:
+                                    html+= '<th align="center">'+str(segundo)+'</th>'
+                                else:
+                                    if int(columna)==int(columnahtml):
+                                        html+= '<th align="center">'+str(b)+'</th>'
+                                        
+                                    else:
+                                        html+= '<th align="center"> </th>'
+                                        
+
+                                columnahtml+=1
+                            html += "</tr>\n"
+
+
+                            segundo+=1
+                            contadorp+=1
+                            break
+                        else:
+                            contadorp+=1
+                            continue
+                else:
+                    contadorl+=1
+                    continue
+
+                contadorp=1
+                contadorl+=1
+                    
+
+
+
+            print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+
+
+                
 
 
             html += "</table><br>\n"

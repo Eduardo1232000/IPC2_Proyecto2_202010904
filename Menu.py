@@ -22,7 +22,7 @@ class interfaz:
         #inicializar la ventana
         self.ventana=ventana
         self.ventana.title("Simulacion")    #Titulo programa
-        self.ventana.geometry("750x500")  #tamaño de pantalla
+        self.ventana.geometry("800x500")  #tamaño de pantalla
         self.ventana.configure(bg='skyblue')#color de fondo ventana
         self.permitir = 0
 
@@ -51,7 +51,7 @@ class interfaz:
         self.l_final= Lista()
         self.p_final=Lista()
         self.reportefinal = Cola()
-
+        self.lineasreportefinal = Cola()
 
         self.contadorcomas =0
         self.contadorcomponentepasos =0
@@ -70,11 +70,6 @@ class interfaz:
         self.ancho =0
         self.comp=0
 
-        
-        
-
-
-
         #BOTONES
         self.botonSaludo = Button(ventana, text="Cargar Archivo",command=self.carga)
         self.botonSaludo.place(x=10, y=10,width=100,height=30)
@@ -87,6 +82,9 @@ class interfaz:
 
         self.botonreportes = Button(ventana, text="Reportes", command=self.reportes)
         self.botonreportes.place(x=310, y=10,width=100,height=30)
+
+        self.botonayuda = Button(ventana, text="Ayuda", command=self.ayuda)
+        self.botonayuda.place(x=410, y=10,width=100,height=30)
 
         self.botonCerrar = Button(ventana, text="Cerrar", command=ventana.quit)
         self.botonCerrar.place(x=610, y=10,width=100,height=30)
@@ -502,9 +500,9 @@ class interfaz:
                                 #print(self.comp)
                                 #print(contadortexto)
                                 if self.comp==contadortexto:
-                                    print(contadortexto, self.comp)
+                                    #print(contadortexto, self.comp)
                                     texto=str(o)
-                                    print(o)
+                                    #print(o)
                                     break
                                 else:
                                     self.comp+=1
@@ -516,6 +514,7 @@ class interfaz:
                             self.componentelabel.config(font=("Verdana",24))
                             # 
                             self.reportefinal.insertar("inicio")
+                            self.lineasreportefinal.insertar("inicio")
                             segundo5=1
                             repetido = 1
                             
@@ -530,26 +529,30 @@ class interfaz:
                             contadorp+=1
                     
                     if construir==1:
-                        print("L"+str(i)+" Construir C"+str(j))
+                        #print("L"+str(i)+" Construir C"+str(j))
                         
                         construir=0
                         colum = int(i)
                         contenido5="L"+str(i)+" Construir C"+str(j)
                         self.reportefinal.insertar(contenido5)
+                        self.lineasreportefinal.insertar(i)
                         
                     elif enposicion==1:
-                        print("L"+str(i)+" en posicion "+str(j))
+                        #print("L"+str(i)+" en posicion "+str(j))
                         contenido5="L"+str(i)+" en posicion "+str(j)
                         colum = int(i)
                         enposicion=0
                         self.reportefinal.insertar(contenido5)
+                        self.lineasreportefinal.insertar(i)
                     
                     else:    
-                        print("L"+str(i)+" Mover a C"+str(j))
+                        #print("L"+str(i)+" Mover a C"+str(j))
                         colum=int(i)
                         contenido5="L"+str(i)+" Mover a C"+str(j)
                         colum = int(i)
                         self.reportefinal.insertar(contenido5)
+                        self.lineasreportefinal.insertar(i)
+                        
 
                     
                     lineafinal=int(i)
@@ -563,9 +566,7 @@ class interfaz:
                     contadorx=0
                     contadory=0
                     contadorcolumna=1
-                    self.timerlabel = Label(ventana_principal, text=segundo5)
-                    self.timerlabel.place(x=620, y=350)
-                    self.timerlabel.config(bg="skyblue",font=("Verdana",24))
+                    
 
                     for q in range(0, 5):
                         fila+=1
@@ -590,7 +591,11 @@ class interfaz:
                                 if fila==5:
                                     cell.insert(0, segundo5)
                                     segundo4=segundo5
+                                    self.timerlabel = Label(ventana_principal, text=segundo5)
+                                    self.timerlabel.place(x=620, y=350,width=50,height=50)
+                                    self.timerlabel.config(bg="skyblue",font=("Verdana",24))
                                     segundo5+=1
+
                                 columna+=1
                             else:
                                 if fila== 1:
@@ -659,14 +664,26 @@ class interfaz:
         if self.permitir ==0:
             MessageBox.showinfo("Error!", "Debe seleccionar primero un archivo de maquina!") # título, mensaje
         else:
-            print("reportes")
             print("---------------Reportes----------------------")
-            for i in self.reportefinal.recorrer():
-                print(i)
-            reporte.reporte_construccion(self,self.reportefinal,self.numero_lineas_produccion,self.listaconstruccion)
+            #for i in self.reportefinal.recorrer():
+            #    print(i)
+            reporte.reporte_construccion(self,self.reportefinal,self.numero_lineas_produccion,self.listaconstruccion, self.lineasreportefinal)
             
-
-    
+    def ayuda(self):
+        MessageBox.showinfo("Datos personales", "Nombre: Eduardo Alexander Reyes Gonzalez, Carnet:202010904")
+        MessageBox.showinfo("AYUDA!", "Este programa fue creado con la finalidad de analizar los caminos de las lineas de produccion.")
+        MessageBox.showinfo("AYUDA!", "Las lineas obtienen sus coordenadas desde un archivo con extension xml, hasta que llega a la ultima coordenada termina su opcion Analizar")
+        MessageBox.showinfo("AYUDA!","Boton Cargar Archivo: abre una ventana en donde el usuario puede subir los datos de la maquina")
+        MessageBox.showinfo("AYUDA!", "Boton Cargar simulacion: Abre una ventana en donde el usuario puede cargar el archivo que contiene los datos de los productos deseados")
+        MessageBox.showinfo("AYUDA!", "Boton analizar: Analiza y muestra los pasos que la maquina realiza en tiempo real")
+        MessageBox.showinfo("AYUDA!", "Boton Salir: Finaliza el programa")
+        print("-----------AYUDA-----------")
+        print("Nombre: Eduardo Alexander Reyes Gonzalez")
+        print("Carnet: 202010904")
+        print("-----SOBRE LA APLICACION---")
+        print("Este programa fue creado con la finalidad de analizar los caminos de las lineas de produccion.") 
+        print("Las lineas obtienen sus coordenadas desde un archivo con extension xml")
+        print("hasta que llega a la ultima coordenada termina su opcion Analizar")   
     
                             
 
