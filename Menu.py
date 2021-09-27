@@ -250,10 +250,7 @@ class interfaz:
             #print("analiza")
             #ANALIZADOR DE LISTA
             for i in self.listado_producto.recorrer():
-                print(len(i))
                 contador=0
-                print(i)
-                #print(i[contador])
                 while contador < len(i):
                     #print(i[contador])
                     if int(self.estado) == 0:
@@ -329,7 +326,6 @@ class interfaz:
                             contador+=1
                 #self.pasos.insertar(",")
                 #self.componentepasos.insertar(",")
-                print("TERMINE")
 #ANALISIS DE PASOS-----------------------------------------------------------------------------------------------------------------------
             queseanaliza="linea"    #ANALISIS PARA IMPRIMIR CORRECTAMENTE
             contadorcomponente=1    #ANALISIS PARA IMPRIMIR CORRECTAMENTE   
@@ -446,11 +442,6 @@ class interfaz:
 
 
 #FIN ANALISIS PASOS------------------------------------------------------------------------------------------------------------------------
-        
-
-              
-
-
             #HILOS
             t1=Thread(target=self.work) 
             t1.start() 
@@ -667,18 +658,11 @@ class interfaz:
                     
                     time.sleep(1)
 
-
-
-
-
                 contadorp+=1
             #print("L"+str(i)+"Construir"+str(componentefinal))
             contadorp=1
             contadorl+=1
 
-
-             
-     
     #FUNCION DEL BOTON REPORTES
     def reportes(self):
         if self.permitir ==0:
@@ -688,6 +672,7 @@ class interfaz:
             #for i in self.reportefinal.recorrer():
             #    print(i)
             reporte.reporte_construccion(self,self.reportefinal,self.numero_lineas_produccion,self.listaconstruccion, self.lineasreportefinal,self.segundostotales)
+            print("---------------Salida----------------------")
             salida.salidaxml(self,self.reportefinal,self.numero_lineas_produccion,self.listaconstruccion, self.lineasreportefinal,self.nombresimulacion,self.segundostotales)
 
     def ayuda(self):
@@ -712,14 +697,6 @@ class interfaz:
         self.imagenn = Label(ventana_principal, image= self.imgn)
         self.imagenn.place(x=10,y=350, width=500, height=100)
         self.imagenn.config(bg="skyblue")
-
-    
-                            
-
-                    
-                
-        
-
 
 ventana_principal= Tk()
 programa = interfaz(ventana_principal)

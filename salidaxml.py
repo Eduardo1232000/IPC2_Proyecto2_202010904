@@ -21,7 +21,6 @@ class salida:
             ET.SubElement(producto, "Nombre").text= str(i)
             contador=0
             for c in segundos.recorrer():
-                print(c)
                 if contador==inicio:
                     ET.SubElement(producto, "TiempoTotal").text= str(c)                       #MODIFICAR TIEMPO
                     contador+=1

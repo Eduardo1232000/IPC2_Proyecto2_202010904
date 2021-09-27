@@ -35,7 +35,6 @@ class reporte:
             columnahtml=0
             segundo=0
             inicioactual=0
-            #print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
             for a in linea.recorrer():
                 if a == "inicio":
                     inicioactual+=1
@@ -91,7 +90,7 @@ class reporte:
             html += "</table><br>\n"
             contadors=0
             for c in segundos.recorrer():
-                print(c)
+                #print(c)
                 if contadors==inicio:
                     html += '<h1>El producto '+str(i)+' Se puede elaborar en '+str(c)+' segundos</h1>'
                     contadors+=1
@@ -105,6 +104,6 @@ class reporte:
 
             reporte.write(html)
             reporte.close()
-            print("El reporte de tokens se ha generado exitosamente")
+            print("El reporte de producto se ha generado exitosamente")
             webbrowser.open_new_tab(str(i)+'.html')
         

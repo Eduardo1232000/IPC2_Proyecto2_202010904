@@ -8,25 +8,13 @@ class grafica:
         posicion=1
         dott = open("grafica.dot",'w')
         dott.write('digraph G {')
-
-        print("---------------------------")
-
-        #for i in listado.recorrer():
-        #    print(i)
-        #print("--------------------------")
-
-        for i in listado.recorrer():
-            #print(i)                            #hacer el dot de la grafica 
+        for i in listado.recorrer():                          
             if str(i)=="inicio":
-                #print("hay un inicio")
-                #print(inicio, numero)
                 inicio+=1
                 continue 
             else:  
                 if int(inicio)==int(numero):
                     dott.write(str(i)+"->")
-
-                    print(i)
                 else:
                     continue
         dott.write("fin")
