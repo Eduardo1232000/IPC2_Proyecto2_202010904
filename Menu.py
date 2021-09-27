@@ -11,10 +11,12 @@ from threading import *
 import time
 import re
 from reporte import*
+from salidaxml import*
+from graficas import *
 reportes= reporte()
+salidasxml= salida()
+graf = grafica()
 
-from analizador import *
-analizando = expresion()
 
 
 class interfaz:
@@ -52,6 +54,8 @@ class interfaz:
         self.p_final=Lista()
         self.reportefinal = Cola()
         self.lineasreportefinal = Cola()
+        self.segundostotales=Cola()
+        self.pasografica=Cola()
 
         self.contadorcomas =0
         self.contadorcomponentepasos =0
@@ -69,6 +73,7 @@ class interfaz:
         self.lenlista=0
         self.ancho =0
         self.comp=0
+        self.productoactual=0
 
         #BOTONES
         self.botonSaludo = Button(ventana, text="Cargar Archivo",command=self.carga)
@@ -85,6 +90,13 @@ class interfaz:
 
         self.botonayuda = Button(ventana, text="Ayuda", command=self.ayuda)
         self.botonayuda.place(x=410, y=10,width=100,height=30)
+
+        self.componenteconstruido = Label(ventana_principal, text="Componentes construidos")
+        self.componenteconstruido.place(x=5, y=250,width=350,height=50)
+        self.componenteconstruido.config(bg="skyblue",font=("Verdana",18))
+
+
+
 
         self.botonCerrar = Button(ventana, text="Cerrar", command=ventana.quit)
         self.botonCerrar.place(x=610, y=10,width=100,height=30)
@@ -233,7 +245,9 @@ class interfaz:
         if self.permitir ==0:
             MessageBox.showinfo("Error!", "Debe seleccionar primero un archivo de maquina!") # título, mensaje
         else:
-            print("analiza")
+            self.botonactualizar = Button(ventana_principal, text="Actualizar o generar grafica",command=self.actualizargraf)
+            self.botonactualizar.place(x=10, y=300,width=200,height=30)
+            #print("analiza")
             #ANALIZADOR DE LISTA
             for i in self.listado_producto.recorrer():
                 print(len(i))
@@ -515,6 +529,11 @@ class interfaz:
                             # 
                             self.reportefinal.insertar("inicio")
                             self.lineasreportefinal.insertar("inicio")
+                            self.pasografica.insertar("inicio")
+                            self.productoactual+=1
+                            
+                            segundo = segundo5-1
+                            self.segundostotales.insertar(segundo)
                             segundo5=1
                             repetido = 1
                             
@@ -536,6 +555,7 @@ class interfaz:
                         contenido5="L"+str(i)+" Construir C"+str(j)
                         self.reportefinal.insertar(contenido5)
                         self.lineasreportefinal.insertar(i)
+                        self.pasografica.insertar("L"+str(i)+"C"+str(j))
                         
                     elif enposicion==1:
                         #print("L"+str(i)+" en posicion "+str(j))
@@ -667,8 +687,9 @@ class interfaz:
             print("---------------Reportes----------------------")
             #for i in self.reportefinal.recorrer():
             #    print(i)
-            reporte.reporte_construccion(self,self.reportefinal,self.numero_lineas_produccion,self.listaconstruccion, self.lineasreportefinal)
-            
+            reporte.reporte_construccion(self,self.reportefinal,self.numero_lineas_produccion,self.listaconstruccion, self.lineasreportefinal,self.segundostotales)
+            salida.salidaxml(self,self.reportefinal,self.numero_lineas_produccion,self.listaconstruccion, self.lineasreportefinal,self.nombresimulacion,self.segundostotales)
+
     def ayuda(self):
         MessageBox.showinfo("Datos personales", "Nombre: Eduardo Alexander Reyes Gonzalez, Carnet:202010904")
         MessageBox.showinfo("AYUDA!", "Este programa fue creado con la finalidad de analizar los caminos de las lineas de produccion.")
@@ -684,6 +705,14 @@ class interfaz:
         print("Este programa fue creado con la finalidad de analizar los caminos de las lineas de produccion.") 
         print("Las lineas obtienen sus coordenadas desde un archivo con extension xml")
         print("hasta que llega a la ultima coordenada termina su opcion Analizar")   
+
+    def actualizargraf(self):
+        grafica.imagen(self,self.pasografica,self.productoactual)
+        self.imgn = ImageTk.PhotoImage(Image.open('grafica.png'))
+        self.imagenn = Label(ventana_principal, image= self.imgn)
+        self.imagenn.place(x=10,y=350, width=500, height=100)
+        self.imagenn.config(bg="skyblue")
+
     
                             
 

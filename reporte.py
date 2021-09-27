@@ -1,8 +1,9 @@
 import webbrowser
 from listas import *
 class reporte:
-    def reporte_construccion(self,listado,no_lineas,componente,linea):
+    def reporte_construccion(self,listado,no_lineas,componente,linea,segundos):
         inicio=0
+        contadors=0
         for i in componente.recorrer():
             inicio+=1
             
@@ -34,7 +35,7 @@ class reporte:
             columnahtml=0
             segundo=0
             inicioactual=0
-            print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+            #print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
             for a in linea.recorrer():
                 if a == "inicio":
                     inicioactual+=1
@@ -45,12 +46,12 @@ class reporte:
                 if inicio==inicioactual:
                     for b in listado.recorrer():
                         if int(contadorl) == int(contadorp):
-                            print (segundo,b)
+                            #print (segundo,b)
                             columna=int(a)
                             columnahtml=0
                             
                             while int(columnahtml) < int(no_lineas)+1:      #El +1 es por la columna tiempo
-                                print(columna,columnahtml)
+                                #print(columna,columnahtml)
                                 if columnahtml==0:
                                     html+= '<th align="center">'+str(segundo)+'</th>'
                                 else:
@@ -81,13 +82,24 @@ class reporte:
 
 
 
-            print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+            #print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 
 
                 
 
 
             html += "</table><br>\n"
+            contadors=0
+            for c in segundos.recorrer():
+                print(c)
+                if contadors==inicio:
+                    html += '<h1>El producto '+str(i)+' Se puede elaborar en '+str(c)+' segundos</h1>'
+                    contadors+=1
+                    break
+                else:
+                    contadors+=1
+
+            
             html += "</body>\n"
             html += '</html >'
 
